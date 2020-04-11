@@ -20,16 +20,30 @@ const useFetch = (url) => {
     setResponse(null);
     setError(null);
 
-    fetch(endpoint + '/characters')
-      .then((response) => response.json())
-      .then((response) => {
-        setLoading(false);
-        setResponse(response);
-      })
-      .catch((error) => {
-        setLoading(false);
+    const fetchUrl = async () => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setResponse(data);
+      } catch (error) {
         setError(error);
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUrl();
+
+    // fetch(endpoint + '/characters')
+    //   .then((response) => response.json())
+    //   .then((response) => {
+    //     setLoading(false);
+    //     setResponse(response);
+    //   })
+    //   .catch((error) => {
+    //     setLoading(false);
+    //     setError(error);
+    //   });
   }, []);
 
   return [response, loading, error];
