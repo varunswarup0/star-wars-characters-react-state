@@ -1,5 +1,6 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import isFunction from 'lodash/isFunction';
 
 import { BrowserRouter as Router } from 'react-router-dom';
 
@@ -43,9 +44,27 @@ const initialState = {
   characters: [],
 };
 
-const Application = () => {
+const useThunkReducer = (reducer, initialState) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const enhancedDispatch = (action) => {
+    console.log(action);
+
+    if (isFunction(action)) {
+      action(dispatch);
+    } else {
+      dispatch(action);
+    }
+  };
+
+  return [state, enhancedDispatch];
+};
+
+const Application = () => {
+  const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { characters } = state;
+
+  useEffect(() => {}, []);
 
   return (
     <div className="Application">
