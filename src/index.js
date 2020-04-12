@@ -38,6 +38,19 @@ const reducer = (state, action) => {
   return state;
 };
 
+const fetchCharacters = (dispatch) => {
+  dispatch({ type: 'LOADING' });
+  fetch(endpoint + '/characters')
+    .then((response) => response.json())
+    .then((response) =>
+      dispatch({
+        type: 'RESPONSE_COMPLETE',
+        payload: { characters: response.characters },
+      }),
+    )
+    .catch((error) => dispatch({ type: 'ERROR', payload: { error } }));
+};
+
 const initialState = {
   error: null,
   loading: false,
@@ -47,15 +60,18 @@ const initialState = {
 const useThunkReducer = (reducer, initialState) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const enhancedDispatch = (action) => {
-    console.log(action);
+  const enhancedDispatch = React.useCallback(
+    (action) => {
+      console.log(action);
 
-    if (isFunction(action)) {
-      action(dispatch);
-    } else {
-      dispatch(action);
-    }
-  };
+      if (isFunction(action)) {
+        action(dispatch);
+      } else {
+        dispatch(action);
+      }
+    },
+    [dispatch],
+  );
 
   return [state, enhancedDispatch];
 };
@@ -64,7 +80,9 @@ const Application = () => {
   const [state, dispatch] = useThunkReducer(reducer, initialState);
   const { characters } = state;
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    dispatch((dispatch) => {});
+  }, [dispatch]);
 
   return (
     <div className="Application">
@@ -73,7 +91,9 @@ const Application = () => {
       </header>
       <main>
         <section className="sidebar">
-          <button onClick={() => {}}>Fetch Characters</button>
+          <button onClick={() => dispatch(fetchCharacters)}>
+            Fetch Characters
+          </button>
           <CharacterList characters={characters} />
         </section>
       </main>
